@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <title>CTR</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        .btn:hover {
+            background-color: lightblue !important;
+        }
+
+        .btn.active {
+            background-color: darkgray !important;
+            text-decoration: underline;
+        }
+
+        .btn.clicked {
+            background-color: lightgray !important;
+        }
+
+        .closeBtn::after {
+            position: absolute;
+            top: -3px;
+            right: 4px;
+            content: "✖";
+            color: #fff;
+            font-size: 20pt;
+            font-weight: normal;
+            cursor: pointer;
+            visibility: hidden;
+            z-index: 99;
+        }
+
+        .closeBtn[data-show="true"]::after {
+            visibility: visible; /* Make it visible when the data attribute is set */
+        }
+
+        .bgCover {
+            z-index: 1;
+            visibility: hidden;
+            position: absolute;
+            top: 43px;
+            left: 0;
+            width: 100%;
+            height: 90%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div style="width: 100%; height: 100%; border: 1px solid red; position: relative;">
+        <button class="btn" style="color: white; background-color: #012169; padding: 10px 20px; border: none; cursor: pointer; margin: 5px; transition: background-color 0.3s;">Btn 1</button>
+        <button class="btn" style="color: white; background-color: #012169; padding: 10px 20px; border: none; cursor: pointer; margin: 5px; transition: background-color 0.3s;">Btn 2</button>
+        <button class="btn" style="color: white; background-color: #012169; padding: 10px 20px; border: none; cursor: pointer; margin: 5px; transition: background-color 0.3s;">Btn 3</button>
+        <button class="btn" style="color: white; background-color: #012169; padding: 10px 20px; border: none; cursor: pointer; margin: 5px; transition: background-color 0.3s;">Btn 4</button>
+        <button class="btn" style="color: white; background-color: #012169; padding: 10px 20px; border: none; cursor: pointer; margin: 5px; transition: background-color 0.3s;">Btn 5</button>
+
+        <p class="txt closeBtn" style="z-index: 2; visibility: hidden; display: block; position: absolute; overflow: hidden; width: 575px; height: 100px; background-color: lightgray; margin-left: 10px; padding: 10px; outline: 1px solid #012169;">Text box 1</p>
+        <p class="txt closeBtn" style="z-index: 2; visibility: hidden; display: block; position: absolute; overflow: hidden; width: 575px; height: 100px; background-color: lightgray; margin-left: 10px; padding: 10px; outline: 1px solid #012169;">Text box 2</p>
+        <p class="txt closeBtn" style="z-index: 2; visibility: hidden; display: block; position: absolute; overflow: hidden; width: 575px; height: 100px; background-color: lightgray; margin-left: 10px; padding: 10px; outline: 1px solid #012169;">Text box 3</p>
+        <p class="txt closeBtn" style="z-index: 2; visibility: hidden; display: block; position: absolute; overflow: hidden; width: 575px; height: 100px; background-color: lightgray; margin-left: 10px; padding: 10px; outline: 1px solid #012169;">Text box 4</p>
+        <p class="txt closeBtn" style="z-index: 2; visibility: hidden; display: block; position: absolute; overflow: hidden; width: 575px; height: 100px; background-color: lightgray; margin-left: 10px; padding: 10px; outline: 1px solid #012169;">Text box 5</p>
+
+        <p style="padding: 5px 10px;">Barque lugsail marooned pressgang killick Jolly Roger pinnace swing the lead chandler cog. Blimey yo-ho-ho crow's nest clipper aft splice the main brace gangplank barkadeer loaded to the gunwalls rope's end. Grog bucko aft pink mizzen handsomely blow the man down reef sails bilge water shrouds.</p>
+        <p style="padding: 5px 10px;">Lugsail topgallant yo-ho-ho code of conduct spirits bilge Letter of Marque list Admiral of the Black gangplank. Sea Legs six pounders fire in the hole scuppers Sink me blow the man down coxswain run a shot across the bow Gold Road main sheet. Rum draft barque avast sheet run a rig topmast broadside fore flogging.</p>
+        <p style="padding: 5px 10px;">Sheet case shot execution dock cable coffer hempen halter port barkadeer lad chase guns. Pinnace cackle fruit ahoy lugger spirits black spot snow bilge belaying pin crimp. Draft avast ho six pounders quarter scourge of the seven seas lad holystone to go on account warp.</p>
+
+        <div class="bgCover"></div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const showCloseBtns = true;
+            const showBgCover = true;
+            let pageCompletionStatus = 'in progress';
+            const btns = document.querySelectorAll(".btn");
+            let activeButton = null;
+            const bgCover = document.querySelector(".bgCover");
+            const txts = document.querySelectorAll(".txt");
+            const closeBtns = document.querySelectorAll(".closeBtn");
+            const clickedButtons = new Set();
+
+            btns.forEach((btn, index) => {
+                btn.addEventListener("click", () => {
+                    const textVisible = txts[index].style.visibility === 'visible';
+                    btn.classList.add('active');
+
+                    txts.forEach((txt, idx) => {
+                        txt.style.visibility = 'hidden';
+                        closeBtns[idx].removeAttribute('data-show');
+                    });
+
+                    if (bgCover) {
+                        bgCover.style.visibility = 'hidden';
+                    }
+
+                    // If there is an active button (other than the one clicked), change its class to 'clicked'
+                    if (activeButton && activeButton !== btn) {
+                        activeButton.classList.remove('active');
+                        activeButton.classList.add('clicked');
+                    }
+
+                    if (!textVisible) {
+                        txts[index].style.visibility = 'visible';
+                        animateTextBox(txts[index]);
+                        showCloseBtn(closeBtns[index]);
+                        btn.classList.remove('clicked');
+                        btn.classList.add('active');
+
+                        if (showBgCover && bgCover) {
+                            bgCover.style.visibility = 'visible';
+                        }
+
+                        btn.classList.remove('clicked');
+                        btn.classList.add('active');
+                        activeButton = btn;
+
+                        clickedButtons.add(index);
+
+                        if (clickedButtons.size === btns.length) {
+                            pageComplete();
+                        }
+                    } else {
+                        btn.classList.remove('active');
+                        btn.classList.add('clicked');
+                    }
+                });
+            });
+
+            function animateTextBox(target) {
+                const originalWidth = target.style.width;
+                const originalHeight = target.style.height;
+
+                target.style.width = '0';
+                target.style.height = '0';
+                target.style.transform = 'scale(0.5)';
+
+                const animation = target.animate([
+                    { transform: 'scale(0.5)', width: '0px', height: '0px' },
+                    { transform: 'scale(1)', width: originalWidth, height: originalHeight }
+                ], {
+                    duration: 500,
+                    easing: 'cubic-bezier(0.680, -0.550, 0.265, 1.550)',
+                    fill: 'forwards'
+                });
+
+                animation.onfinish = () => {
+                    target.style.width = originalWidth;
+                    target.style.height = originalHeight;
+                };
+            }
+
+            function showCloseBtn(target) {
+                if (showCloseBtns) {
+                    target.setAttribute('data-show', 'true');
+                }
+            }
+
+            closeBtns.forEach((closeBtn) => {
+                closeBtn.addEventListener("click", () => {
+
+                    btns.forEach((btn) => {
+                        if (btn.classList.contains('active')) {
+                            btn.classList.remove('active');
+                            btn.classList.add('clicked');
+                        }   
+                    });
+
+                    txts.forEach((txt) => {
+                        txt.style.visibility = 'hidden';
+                    });
+
+                    closeBtns.forEach((closeBtn) => {
+                        closeBtn.removeAttribute('data-show');
+                    });
+
+                    if (bgCover) {
+                        bgCover.style.visibility = 'hidden';
+                    }
+
+                    btns.forEach((btn) => {
+                        btn.classList.remove('active');
+                    });
+                });
+            });
+
+            function pageComplete() {
+                if (pageCompletionStatus === 'in progress') {
+                    pageCompletionStatus = 'completed';
+                    alert('Page completion status: ' + pageCompletionStatus);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
